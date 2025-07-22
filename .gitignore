@@ -1,0 +1,4 @@
+system.o
+auth.o
+main.o
+atm.exe
