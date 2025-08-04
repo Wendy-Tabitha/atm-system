@@ -6,8 +6,8 @@ int getAccountFromFile(FILE *ptr, char name[50], struct Record *r)
 {
     return fscanf(ptr, "%d %d %s %d %d/%d/%d %s %d %lf %s",
                   &r->id,
-		  &r->userId,
-		  name,
+                  &r->userId,
+                  name,
                   &r->accountNbr,
                   &r->deposit.month,
                   &r->deposit.day,
@@ -20,9 +20,9 @@ int getAccountFromFile(FILE *ptr, char name[50], struct Record *r)
 
 void saveAccountToFile(FILE *ptr, struct User u, struct Record r)
 {
-    fprintf(ptr, "%d %d %s %d %d/%d/%d %s %d %.2lf %s\n\n",
+    fprintf(ptr, "%d %d %s %d %d/%d/%d %s %d %.2lf %s\n",
             r.id,
-            u.id,
+            r.userId,
             u.name,
             r.accountNbr,
             r.deposit.month,
@@ -106,10 +106,12 @@ void createNewAcc(struct User u)
     // Find the next available id
     int maxId = -1;
     FILE *pf_read = fopen(RECORDS, "r");
-    while (getAccountFromFile(pf_read, userName, &cr)) {
-        if (cr.id > maxId) maxId = cr.id;
+    if (pf_read != NULL) {
+        while (getAccountFromFile(pf_read, userName, &cr)) {
+            if (cr.id > maxId) maxId = cr.id;
+        }
+        fclose(pf_read);
     }
-    fclose(pf_read);
     r.id = maxId + 1;
     r.userId = u.id;
 

@@ -72,6 +72,16 @@ void initMenu(struct User *u)
             if (strcmp(u->password, getPassword(*u)) == 0)
             {
                 printf("\n\nPassword Match!");
+                // Set user id after successful login
+                FILE *fp = fopen("./data/users.txt", "r");
+                struct User userChecker;
+                while (fscanf(fp, "%d %s %s", &userChecker.id, userChecker.name, userChecker.password) != EOF) {
+                    if (strcmp(userChecker.name, u->name) == 0) {
+                        u->id = userChecker.id;
+                        break;
+                    }
+                }
+                fclose(fp);
             }
             else
             {
