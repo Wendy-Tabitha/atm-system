@@ -60,67 +60,83 @@ void registerMenu(char a[50], char pass[50])
     int maxId = -1;
     char tempName[50];
     char tempPass[50];
+    int userExists = 0;
+    int retryOption = 0;
 
-    system("clear");
-    printf("\n\n\n\t\t\t\t   Bank Management System\n\t\t\t\t\t User Registration:\n");
-    printf("Enter your username: ");
-    scanf("%s", tempName);
+    do {
+        userExists = 0;
+        system("clear");
+        printf("\n\n\n\t\t\t\t   Bank Management System\n\t\t\t\t\t User Registration:\n");
+        printf("Enter your username: ");
+        scanf("%s", tempName);
 
-    // Check if username already exists
-    if ((fp = fopen("./data/users.txt", "r")) != NULL)
-    {
-        while (fscanf(fp, "%d %s %s", &userChecker.id, userChecker.name, userChecker.password) != EOF)
+        // Check if username already exists
+        if ((fp = fopen("./data/users.txt", "r")) != NULL)
         {
-            if (strcmp(userChecker.name, tempName) == 0)
+            while (fscanf(fp, "%d %s %s", &userChecker.id, userChecker.name, userChecker.password) != EOF)
             {
-                printf("\nUsername already exists!\n");
-                fclose(fp);
+                if (strcmp(userChecker.name, tempName) == 0)
+                {
+                    userExists = 1;
+                }
+                if (userChecker.id > maxId) maxId = userChecker.id;
+            }
+            fclose(fp);
+        }
+
+        printf("Enter your password: ");
+#if defined(_WIN32) || defined(_WIN64)
+        int i = 0;
+        char ch;
+        while ((ch = _getch()) != '\r' && i < 49)
+        {
+            if (ch == '\b' && i > 0)
+            {
+                i--;
+                printf("\b \b");
+            }
+            else if (ch != '\b')
+            {
+                tempPass[i++] = ch;
+                printf("*");
+            }
+        }
+        tempPass[i] = '\0';
+        printf("\n");
+#else
+        struct termios oflags, nflags;
+        tcgetattr(fileno(stdin), &oflags);
+        nflags = oflags;
+        nflags.c_lflag &= ~ECHO;
+        nflags.c_lflag |= ECHONL;
+        if (tcsetattr(fileno(stdin), TCSANOW, &nflags) != 0)
+        {
+            perror("tcsetattr");
+            exit(1);
+        }
+        scanf("%s", tempPass);
+        if (tcsetattr(fileno(stdin), TCSANOW, &oflags) != 0)
+        {
+            perror("tcsetattr");
+            exit(1);
+        }
+#endif
+
+        if (userExists) {
+            printf("\nUsername already exists!\n");
+            printf("Enter 1 to try registering again or 0 to return to the main menu: ");
+            scanf("%d", &retryOption);
+            if (retryOption == 1) {
+                continue;
+            } else {
                 strcpy(a, "");
                 strcpy(pass, "");
                 return;
             }
-            if (userChecker.id > maxId) maxId = userChecker.id;
+        } else {
+            break;
         }
-        fclose(fp);
-    }
-
-    printf("Enter your password: ");
-#if defined(_WIN32) || defined(_WIN64)
-    int i = 0;
-    char ch;
-    while ((ch = _getch()) != '\r' && i < 49)
-    {
-        if (ch == '\b' && i > 0)
-        {
-            i--;
-            printf("\b \b");
-        }
-        else if (ch != '\b')
-        {
-            tempPass[i++] = ch;
-            printf("*");
-        }
-    }
-    tempPass[i] = '\0';
-    printf("\n");
-#else
-    struct termios oflags, nflags;
-    tcgetattr(fileno(stdin), &oflags);
-    nflags = oflags;
-    nflags.c_lflag &= ~ECHO;
-    nflags.c_lflag |= ECHONL;
-    if (tcsetattr(fileno(stdin), TCSANOW, &nflags) != 0)
-    {
-        perror("tcsetattr");
-        exit(1);
-    }
-    scanf("%s", tempPass);
-    if (tcsetattr(fileno(stdin), TCSANOW, &oflags) != 0)
-    {
-        perror("tcsetattr");
-        exit(1);
-    }
-#endif
+    } while (1);
 
     // Save new user
     fp = fopen("./data/users.txt", "a");
