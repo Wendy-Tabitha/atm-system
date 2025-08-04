@@ -81,9 +81,28 @@ void initMenu(struct User *u)
             r = 1;
             break;
         case 2:
-            registerMenu(u->name, u->password);
-            // Set user id after registration
+            // Loop until registration is successful (username is unique)
             {
+                int regResult;
+                do {
+                    regResult = 0;
+                    registerMenu(u->name, u->password);
+                    if (strlen(u->name) == 0 && strlen(u->password) == 0) {
+                        // User chose to return to main menu
+                        break;
+                    }
+                    if (strlen(u->name) == 0) {
+                        // Registration failed (duplicate username), prompt again
+                        printf("\nPlease try registering with a different username.\n");
+                    } else {
+                        regResult = 1;
+                    }
+                } while (!regResult);
+                if (strlen(u->name) == 0 && strlen(u->password) == 0) {
+                    // User chose to return to login/register menu
+                    continue;
+                }
+                // Set user id after registration
                 FILE *fp = fopen("./data/users.txt", "r");
                 struct User userChecker;
                 while (fscanf(fp, "%d %s %s", &userChecker.id, userChecker.name, userChecker.password) != EOF) {
@@ -93,8 +112,8 @@ void initMenu(struct User *u)
                     }
                 }
                 fclose(fp);
+                r = 1;
             }
-            r = 1;
             break;
         case 3:
             exit(1);
