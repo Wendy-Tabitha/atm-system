@@ -3,6 +3,7 @@
 #else
 #include <termios.h>
 #endif
+#include <string.h>
 #include "header.h"
 
 char *USERS = "./data/users.txt";
@@ -129,23 +130,24 @@ void registerMenu(char a[50], char pass[50])
             if (retryOption == 1) {
                 continue;
             } else {
+                // Clear the arrays and return to main menu
                 strcpy(a, "");
                 strcpy(pass, "");
                 return;
             }
         } else {
-            break;
+            // Username is unique, proceed with registration
+            // Save new user
+            fp = fopen("./data/users.txt", "a");
+            fprintf(fp, "%d %s %s\n", maxId + 1, tempName, tempPass);
+            fclose(fp);
+
+            strcpy(a, tempName);
+            strcpy(pass, tempPass);
+            printf("\nRegistration successful!\n");
+            return;
         }
     } while (1);
-
-    // Save new user
-    fp = fopen("./data/users.txt", "a");
-    fprintf(fp, "%d %s %s\n", maxId + 1, tempName, tempPass);
-    fclose(fp);
-
-    strcpy(a, tempName);
-    strcpy(pass, tempPass);
-    printf("\nRegistration successful!\n");
 }
 
 const char *getPassword(struct User u)

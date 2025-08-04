@@ -81,39 +81,29 @@ void initMenu(struct User *u)
             r = 1;
             break;
         case 2:
-            // Loop until registration is successful (username is unique)
-            {
-                int regResult;
-                do {
-                    regResult = 0;
-                    registerMenu(u->name, u->password);
-                    if (strlen(u->name) == 0 && strlen(u->password) == 0) {
-                        // User chose to return to main menu
-                        break;
-                    }
-                    if (strlen(u->name) == 0) {
-                        // Registration failed (duplicate username), prompt again
-                        printf("\nPlease try registering with a different username.\n");
-                    } else {
-                        regResult = 1;
-                    }
-                } while (!regResult);
-                if (strlen(u->name) == 0 && strlen(u->password) == 0) {
-                    // User chose to return to login/register menu
-                    continue;
-                }
-                // Set user id after registration
-                FILE *fp = fopen("./data/users.txt", "r");
-                struct User userChecker;
-                while (fscanf(fp, "%d %s %s", &userChecker.id, userChecker.name, userChecker.password) != EOF) {
-                    if (strcmp(userChecker.name, u->name) == 0) {
-                        u->id = userChecker.id;
-                        break;
-                    }
-                }
-                fclose(fp);
-                r = 1;
+            registerMenu(u->name, u->password);
+            // Check if user chose to return to main menu (both name and password are empty)
+            if (strlen(u->name) == 0 && strlen(u->password) == 0) {
+                // User chose to return to main menu, continue the loop
+                system("clear");
+                printf("\n\n\t\t======= ATM =======\n");
+                printf("\n\t\t-->> Feel free to login / register :\n");
+                printf("\n\t\t[1]- login\n");
+                printf("\n\t\t[2]- register\n");
+                printf("\n\t\t[3]- exit\n");
+                continue;
             }
+            // Registration was successful, set user id
+            FILE *fp = fopen("./data/users.txt", "r");
+            struct User userChecker;
+            while (fscanf(fp, "%d %s %s", &userChecker.id, userChecker.name, userChecker.password) != EOF) {
+                if (strcmp(userChecker.name, u->name) == 0) {
+                    u->id = userChecker.id;
+                    break;
+                }
+            }
+            fclose(fp);
+            r = 1;
             break;
         case 3:
             exit(1);
